@@ -60,7 +60,7 @@ async function load() {
   el("status").hidden = false;
   el("status").textContent = "Meldungen werden geladen …";
   try {
-    const response = await fetch("./api/feed.json", {cache: "no-cache"});
+    const response = await fetch("./api/feed.json?v=2", {cache: "no-cache"});
     if (!response.ok) throw Error(response.status);
     const feed = await response.json();
     articles = feed.items.filter(a => a.title && https(a.url));
