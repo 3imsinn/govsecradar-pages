@@ -4,6 +4,7 @@ import email.utils
 import itertools
 import json
 import os
+import re
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -43,6 +44,23 @@ def publication_date(value):
         return None
 
 
+LEVELS = {"kritisch": "Kritisch", "sehr hoch": "Kritisch", "hoch": "Hoch",
+          "mittel": "Mittel", "niedrig": "Niedrig", "gering": "Niedrig",
+          "critical": "Kritisch", "high": "Hoch", "medium": "Mittel", "low": "Niedrig"}
+
+
+def severity(category, tags, title):
+    if category != "Security":
+        return None
+    for word in [*tags, *re.findall(r"\[([^]]+)\]", title)]:
+        level = LEVELS.get(word.strip().lower())
+        if level:
+            return level
+    match = re.search(r"\b(critical|high|medium|low)[ -]+(?:severity\b|vulnerabilit(?:y|ies)\b)",
+                      title, re.IGNORECASE)
+    return LEVELS[match[1].lower()] if match else None
+
+
 def collect(source):
     request = urllib.request.Request(source["url"], headers={"User-Agent": "GovSecRadar/1.0 (+https://3imsinn.de/)"})
     with urllib.request.urlopen(request, timeout=25) as response:
@@ -61,6 +79,7 @@ def collect(source):
         seen.add(url)
         rows.append(dict(title=title, url=url, source=source["name"], category=source["category"],
                          date=publication_date(entry.findtext("pubDate")),
+                         severity=severity(source["category"], [e.text or "" for e in entry.findall("category")], title),
                          summary=excerpt(entry.findtext("description") or "")))
         if len(rows) == 60:
             break
