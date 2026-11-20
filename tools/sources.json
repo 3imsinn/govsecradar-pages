@@ -1,0 +1,5 @@
+[
+  {"name":"Bundestag · Digitales","category":"Government","url":"https://www.bundestag.de/static/appdata/includes/rss/digitales.rss"},
+  {"name":"CERT-Bund","category":"Security","url":"https://wid.cert-bund.de/content/public/securityAdvisory/rss"},
+  {"name":"CERT-EU · Security Advisories","category":"Security","url":"https://cert.europa.eu/publications/security-advisories-rss"}
+]
